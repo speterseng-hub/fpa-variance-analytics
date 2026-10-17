@@ -1,0 +1,10 @@
+country,category,driver,shock_pct,from_month,description
+CL,ELEC,units,-0.12,2026-03-01,New online competitor in Chile electronics
+CL,ELEC,price,-0.04,2026-03-01,Promotional pricing to defend share
+CL,ALL,marketing,0.15,2026-03-01,Extra marketing to answer the competitor
+ES,FASH,units,0.09,2026-01-01,Strong Fashion season in Spain
+PE,BEAU,units,0.1,2026-01-01,"Mix shift to Beauty in Peru (higher GM%, lower margin per unit)"
+PE,HOME,units,-0.05,2026-01-01,Softer Home & DIY demand in Peru
+MX,ALL,logistics,0.14,2026-04-01,Carrier tariff increase in Mexico
+MX,ALL,fte,0.06,2026-02-01,Unbudgeted hires for new DC in Mexico
+ALL,ELEC,unit_cost,0.02,2026-01-01,Higher supplier cost on electronics

@@ -1,0 +1,58 @@
+// =====================================================================
+// FP&A Variance Analytics - Power BI measures (DAX)
+// Model: star schema from powerbi/data/*.csv (see powerbi/README.md)
+//   fct_sales[date] -> dim_date[date], fct_sales[country] -> dim_country[country]
+//   fct_sales[category] -> dim_category[category], fct_sales[scenario] -> dim_scenario[scenario]
+//   fct_opex, fct_headcount, fct_bridge_budget_vs_actual: same date / country keys
+// Create a table "Measures" and add each measure below.
+// =====================================================================
+
+// ---------- Base measures (respect the scenario on the visual / slicer) ----------
+Revenue = SUM ( fct_sales[revenue_eur] )
+COGS = SUM ( fct_sales[cogs_eur] )
+Gross Margin = SUM ( fct_sales[gross_margin_eur] )
+Opex = SUM ( fct_opex[amount_eur] )
+EBITDA = [Gross Margin] - [Opex]
+GM % = DIVIDE ( [Gross Margin], [Revenue] )
+EBITDA % = DIVIDE ( [EBITDA], [Revenue] )
+Units = SUM ( fct_sales[units] )
+Avg FTE = AVERAGEX ( VALUES ( dim_date[date] ), CALCULATE ( SUM ( fct_headcount[fte] ) ) )
+
+// ---------- Scenario-pinned measures ----------
+Revenue Actual = CALCULATE ( [Revenue], dim_scenario[scenario] = "ACTUAL" )
+Revenue Budget = CALCULATE ( [Revenue], dim_scenario[scenario] = "BUDGET" )
+EBITDA Actual  = CALCULATE ( [EBITDA],  dim_scenario[scenario] = "ACTUAL" )
+EBITDA Budget  = CALCULATE ( [EBITDA],  dim_scenario[scenario] = "BUDGET" )
+EBITDA FC 9+3  = CALCULATE ( [EBITDA],  dim_scenario[scenario] = "FC_9+3" )
+
+// Budget only for months that have actuals (like-for-like YTD)
+EBITDA Budget LFL =
+VAR LastActual = CALCULATE ( MAX ( fct_sales[date] ), ALL ( fct_sales ), fct_sales[scenario] = "ACTUAL" )
+RETURN CALCULATE ( [EBITDA Budget], KEEPFILTERS ( dim_date[date] <= LastActual ) )
+
+// ---------- Variances ----------
+EBITDA Var vs Budget = [EBITDA Actual] - [EBITDA Budget LFL]
+EBITDA Var vs Budget % = DIVIDE ( [EBITDA Var vs Budget], ABS ( [EBITDA Budget LFL] ) )
+Revenue Var vs Budget % = DIVIDE ( [Revenue Actual] - [Revenue Budget], [Revenue Budget] )
+
+// ---------- Time intelligence ----------
+EBITDA Actual YTD = TOTALYTD ( [EBITDA Actual], dim_date[date] )
+EBITDA Budget YTD = TOTALYTD ( [EBITDA Budget LFL], dim_date[date] )
+EBITDA Actual PY  = CALCULATE ( [EBITDA Actual], SAMEPERIODLASTYEAR ( dim_date[date] ) )
+EBITDA Var vs PY % = DIVIDE ( [EBITDA Actual] - [EBITDA Actual PY], ABS ( [EBITDA Actual PY] ) )
+
+// ---------- Bridge (Budget -> Actual), for the waterfall visual ----------
+// Waterfall: Category = fct_bridge_budget_vs_actual[driver] (sort by driver_order),
+// Y axis = [Bridge Impact]; add [EBITDA Budget LFL] as the starting bar.
+Bridge Impact = SUM ( fct_bridge_budget_vs_actual[impact_eur] )
+Bridge Check = [EBITDA Budget LFL] + [Bridge Impact] - [EBITDA Actual]   // must be 0
+
+// ---------- Formatting helpers ----------
+Variance Color =
+VAR v = [EBITDA Var vs Budget]
+RETURN SWITCH ( TRUE (), v > 0, "#2a78d6", v < 0, "#e34948", "#52514e" )
+
+EBITDA Headline =
+"EBITDA " & FORMAT ( [EBITDA Actual] / 1e6, "€#,0.0m" ) & " · "
+    & FORMAT ( [EBITDA Var vs Budget] / 1e6, "+€#,0.0m;-€#,0.0m" ) & " vs budget ("
+    & FORMAT ( [EBITDA Var vs Budget %], "+0.0%;-0.0%" ) & ")"

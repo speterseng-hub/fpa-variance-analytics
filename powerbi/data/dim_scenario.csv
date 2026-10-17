@@ -1,0 +1,6 @@
+scenario,scenario_name,sort_order
+ACTUAL,Actual,1
+BUDGET,Budget,2
+FC_3+9,Forecast 3+9,3
+FC_6+6,Forecast 6+6,4
+FC_9+3,Forecast 9+3,5
