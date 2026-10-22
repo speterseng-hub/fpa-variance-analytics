@@ -136,7 +136,8 @@ view = dict(base=cfg["base"], comp=cfg["comp"], months=months, countries=countri
 v = V.View(**view)
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("Built by **Sebastián Petersen** · [LinkedIn](https://www.linkedin.com/in/sipetersen) · [GitHub repo](https://github.com/{{REPO}}) · "
+st.sidebar.markdown("Built by **Sebastián Petersen** · [LinkedIn](https://www.linkedin.com/in/sipetersen) · "
+                    "[GitHub repo](https://github.com/speterseng-hub/fpa-variance-analytics) · "
                     "Python · SQL (DuckDB) · Streamlit · Power BI")
 
 # ---------- header ----------

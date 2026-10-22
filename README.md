@@ -2,7 +2,7 @@
 
 **Budget vs. actual vs. forecast for a multi-country retail group: price / volume / mix / FX variance bridges, a driver-based rolling forecast, automated management commentary and reconciliation checks.**
 
-[![CI](https://github.com/{{REPO}}/actions/workflows/ci.yml/badge.svg)](https://github.com/{{REPO}}/actions/workflows/ci.yml)
+[![CI](https://github.com/speterseng-hub/fpa-variance-analytics/actions/workflows/ci.yml/badge.svg)](https://github.com/speterseng-hub/fpa-variance-analytics/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.11+-2a78d6)
 ![SQL](https://img.shields.io/badge/SQL-DuckDB-eb6834)
 ![Streamlit](https://img.shields.io/badge/Dashboard-Streamlit-1baf7a)
@@ -88,8 +88,8 @@ More detail in [`docs/methodology.md`](docs/methodology.md).
 ## Run it locally
 
 ```bash
-git clone https://github.com/{{REPO}}.git
-cd {{REPO_NAME}}
+git clone https://github.com/speterseng-hub/fpa-variance-analytics.git
+cd fpa-variance-analytics
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements-dev.txt
 

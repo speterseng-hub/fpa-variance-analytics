@@ -8,3 +8,4 @@ data/processed/warehouse.duckdb
 data/processed/warehouse.duckdb.wal
 .DS_Store
 .ipynb_checkpoints/
+CLAUDE.md
