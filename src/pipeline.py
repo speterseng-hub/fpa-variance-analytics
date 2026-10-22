@@ -30,6 +30,7 @@ def build_warehouse(path=C.WAREHOUSE) -> duckdb.DuckDBPyConnection:
 def export_powerbi(con: duckdb.DuckDBPyConnection) -> None:
     """Star schema extracts for the Power BI report (see powerbi/README.md)."""
     C.POWERBI_DIR.mkdir(parents=True, exist_ok=True)
+    # explicit ORDER BY: DuckDB writes in parallel, so without it every rebuild reshuffles the committed CSVs
     queries = {
         "dim_country": "SELECT * FROM dim_country",
         "dim_category": "SELECT * FROM dim_category",
@@ -42,14 +43,14 @@ def export_powerbi(con: duckdb.DuckDBPyConnection) -> None:
             SELECT scenario, month AS date, country, category, units,
                    ROUND(revenue_eur, 2) AS revenue_eur, ROUND(cogs_eur, 2) AS cogs_eur,
                    ROUND(gross_margin_eur, 2) AS gross_margin_eur
-            FROM fct_sales""",
+            FROM fct_sales ORDER BY scenario, date, country, category""",
         "fct_opex": """
             SELECT scenario, month AS date, country, opex_line, ROUND(amount_eur, 2) AS amount_eur
-            FROM fct_opex""",
-        "fct_headcount": "SELECT scenario, month AS date, country, fte FROM stg_headcount",
+            FROM fct_opex ORDER BY scenario, date, country, opex_line""",
+        "fct_headcount": "SELECT scenario, month AS date, country, fte FROM stg_headcount ORDER BY scenario, date, country",
         "fct_bridge_budget_vs_actual": """
             SELECT month AS date, country, detail, driver, driver_order, ROUND(impact_eur, 2) AS impact_eur
-            FROM ebitda_bridge('BUDGET', 'ACTUAL', 0)""",
+            FROM ebitda_bridge('BUDGET', 'ACTUAL', 0) ORDER BY date, country, driver_order, detail""",
     }
     for name, q in queries.items():
         con.execute(f"COPY ({q}) TO '{(C.POWERBI_DIR / (name + '.csv')).as_posix()}' (HEADER, DELIMITER ',')")

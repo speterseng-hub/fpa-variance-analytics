@@ -64,7 +64,16 @@ def vs(delta: str | None, ref: str) -> str | None:
 
 
 # ---------- cached data access ----------
-@st.cache_data(show_spinner="Building warehouse…")
+@st.cache_resource(show_spinner="Building the warehouse (first visit only, ~10 s)…")
+def ensure_warehouse() -> None:
+    """Build the gitignored DuckDB warehouse once per server process, so concurrent first visitors don't race to create it."""
+    V.connect().close()
+
+
+ensure_warehouse()
+
+
+@st.cache_data(show_spinner=False)
 def q(fn: str, **kw):
     con = V.connect()
     try:
